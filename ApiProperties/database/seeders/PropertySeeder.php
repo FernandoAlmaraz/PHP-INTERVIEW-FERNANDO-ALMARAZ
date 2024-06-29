@@ -12,6 +12,8 @@ class PropertySeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $this->call([
+            PropertySeeder::class
+        ]);
     }
 }
