@@ -6,6 +6,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\HelpTools\CsvImport;
 use App\HelpTools\AveragePriceCalculator;
 use App\HelpTools\Filter;
+use App\HelpTools\FilterByCoor;
 use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
@@ -30,7 +31,6 @@ class PropertyController extends Controller
     {
         //
     }
-
     /**
      * Store a newly created resource in storage.
      * TASK 1
@@ -138,8 +138,12 @@ class PropertyController extends Controller
      */
     public function createReport(Request $request)
     {
+
         try {
-            $filter = new Filter($request);
+            if (empty($request->all())) {
+                throw new \Exception('El request está vacío o incompleto.');
+            }
+            $filter = new FilterByCoor($request);
             $filteredProperties = $filter->apply();
 
             if ($request->report_type === 'pdf') {
@@ -157,7 +161,7 @@ class PropertyController extends Controller
                 'archivo' => $fileName,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Los parámetros no son los esperados :(.'], 400);
         }
     }
 }
