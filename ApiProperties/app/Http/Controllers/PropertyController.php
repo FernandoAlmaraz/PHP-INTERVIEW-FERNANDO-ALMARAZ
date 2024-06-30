@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\reader\CsvImport;
-use App\reader\AveragePriceCalculator;
-use App\reader\Filter;
+use App\HelpTools\CsvImport;
+use App\HelpTools\AveragePriceCalculator;
+use App\HelpTools\Filter;
 use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;

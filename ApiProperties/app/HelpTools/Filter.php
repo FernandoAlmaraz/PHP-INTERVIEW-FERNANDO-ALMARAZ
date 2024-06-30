@@ -1,6 +1,6 @@
 <?php
 
-namespace App\reader;
+namespace App\HelpTools;
 
 use App\Models\Property;
 use Illuminate\Http\Request;
