@@ -6,6 +6,7 @@ use App\reader\CsvImport;
 use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
+use Illuminate\Http\Request;
 
 class PropertyController extends Controller
 {
@@ -14,7 +15,8 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        return response()->json(['message' => 'Datos importados correctamente'], 200);
+        $properties = Property::paginate();
+        return response()->json(['properties' => $properties], 200);
     }
 
     /**
@@ -22,7 +24,7 @@ class PropertyController extends Controller
      */
     public function create()
     {
-        return response()->json(['message' => 'Datos importados correctament2e'], 200);
+        return response()->json(['message' => 'Creando datos'], 200);
     }
 
     /**
@@ -30,7 +32,6 @@ class PropertyController extends Controller
      */
     public function store(StorePropertyRequest $request)
     {
-        //return response()->json(['message' => $request->pathFile], 200);
         try {
             $importer = new CsvImport($request->pathFile);
             $importer->import();
@@ -71,5 +72,27 @@ class PropertyController extends Controller
     public function destroy(Property $property)
     {
         //
+    }
+    public function filterProperties(Request $request)
+    {
+        $precioMin = $request->query('precio_min');
+        $precioMax = $request->query('precio_max');
+        $habitaciones = $request->query('habitaciones');
+        $query = Property::query();
+
+        if ($precioMin && $precioMax) {
+            $query->whereBetween('Precio', [$precioMin, $precioMax]);
+        } elseif ($precioMin) {
+            $query->where('Precio', '>=', $precioMin);
+        } elseif ($precioMax) {
+            $query->where('Precio', '<=', $precioMax);
+        }
+
+        if ($habitaciones) {
+            $query->where('Habitaciones', $habitaciones);
+        }
+        $properties = $query->paginate(10);
+
+        return response()->json(['properties' => $properties], 200);
     }
 }
