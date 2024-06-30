@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\reader\CsvImport;
-
 use App\reader\AveragePriceCalculator;
+use App\reader\Filter;
 use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
@@ -77,25 +77,16 @@ class PropertyController extends Controller
     }
     public function filterProperties(Request $request)
     {
-        $precioMin = $request->query('precio_min');
-        $precioMax = $request->query('precio_max');
-        $habitaciones = $request->query('habitaciones');
-        $query = Property::query();
-
-        if ($precioMin && $precioMax) {
-            $query->whereBetween('Precio', [$precioMin, $precioMax]);
-        } elseif ($precioMin) {
-            $query->where('Precio', '>=', $precioMin);
-        } elseif ($precioMax) {
-            $query->where('Precio', '<=', $precioMax);
+        try {
+            // Crear instancia del filtro y aplicar
+            $filter = new Filter($request);
+            $filteredProperties = $filter->apply();
+            // Retornar respuesta JSON con propiedades filtradas
+            return response()->json(['properties' => $filteredProperties], 200);
+        } catch (\Exception $e) {
+            // Manejar cualquier error
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        if ($habitaciones) {
-            $query->where('Habitaciones', $habitaciones);
-        }
-        $properties = $query->paginate(10);
-
-        return response()->json(['properties' => $properties], 200);
     }
     public function calculateAveragePrice(Request $request)
     {
