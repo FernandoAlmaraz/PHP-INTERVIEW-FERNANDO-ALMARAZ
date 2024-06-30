@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->string('Latitud')->nullable();
-            $table->integer('ID')->nullable();
             $table->string('Longitud')->nullable();
+            $table->integer('ID')->nullable();
             $table->string('Titulo')->nullable();
             $table->string('Anunciante')->nullable();
             $table->text('Descripcion')->nullable();

@@ -11,6 +11,7 @@ class Property extends Model
     protected $fillable = [
         'Latitud',
         'Longitud',
+        'ID',
         'Titulo',
         'Anunciante',
         'Descripcion',
@@ -50,7 +51,6 @@ class Property extends Model
         'Apto_para_personas_con_movilidad_reducida',
         'Plantas',
         'Se_admiten_mascotas',
-        'Balcon',
-        'ID', // Agregar 'ID' al fillable
+        'Balcon'
     ];
 }
