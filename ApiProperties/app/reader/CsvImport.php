@@ -90,19 +90,17 @@ class CsvImport
                 case 'Plantas':
                 case 'Precio':
                 case 'Precio por metro':
-                    // Convertir a entero si es numérico
                     if (is_numeric($value)) {
                         $value = (int) $value;
                     } else {
-                        $value = null; // Puedes manejar aquí casos de valores no válidos como 'NaN'
+                        $value = null;
                     }
                     break;
                 case 'Fecha':
-                    // Convertir formato de fecha 'dd/mm/yyyy' a 'yyyy-mm-dd'
                     if ($this->isDate($value)) {
                         $value = date('Y-m-d', strtotime(str_replace('/', '-', $value)));
                     } else {
-                        $value = null; // Puedes manejar aquí casos de fechas no válidas
+                        $value = null;
                     }
                     break;
                 case 'Reformado':
@@ -145,9 +143,6 @@ class CsvImport
         return $rowData;
     }
 
-
-
-
     protected function isDate($string)
     {
         $date = date_create_from_format('d/m/Y', $string);
@@ -160,8 +155,6 @@ class CsvImport
         if (empty($data) || !isset($data['ID'])) {
             throw new Exception('Los datos no son válidos para la inserción.');
         }
-
-
         Property::updateOrCreate(
             ['ID' => $data['ID']],
             $data

@@ -108,7 +108,6 @@ class PropertyController extends Controller
             $filteredProperties = $filter->apply();
 
             if ($request->tipo_reporte === 'pdf') {
-                // Generar reporte en PDF (ejemplo con dompdf)
                 $pdf = PDF::loadView('reporte.pdf', $filteredProperties);
                 $content = $pdf->output();
                 $fileName = 'reporte_' . uniqid() . '.pdf';

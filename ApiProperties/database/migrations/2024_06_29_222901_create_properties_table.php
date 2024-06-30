@@ -55,7 +55,6 @@ return new class extends Migration
             $table->integer('Plantas')->nullable();
             $table->boolean('Se admiten mascotas')->nullable();
             $table->boolean('Balcon')->nullable();
-
             $table->timestamps();
         });
     }
