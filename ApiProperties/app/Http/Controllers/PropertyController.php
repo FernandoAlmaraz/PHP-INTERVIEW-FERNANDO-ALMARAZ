@@ -33,6 +33,11 @@ class PropertyController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * TASK 1
+     * Test Body
+     * {
+     *      "pathFile":"H:/Users/myPC/Desk/netforemost/PHP-INTERVIEW-FERNANDO-ALMARAZ/ApiProperties/resource_accommodation.csv"
+     *     }
      */
     public function store(StorePropertyRequest $request)
     {
@@ -79,6 +84,16 @@ class PropertyController extends Controller
     {
         //
     }
+    /**
+     * Filter by price and rooms.
+     * TASK 2
+     * Test Body
+     * {
+     *       "min_price":799,
+     *       "max_price":10000,
+     *       "rooms":9
+     *       }
+     */
     public function filterProperties(Request $request)
     {
         try {
@@ -108,6 +123,19 @@ class PropertyController extends Controller
             return response()->json(['error' => 'Los parámetros no son los esperados :(.'], 400);
         }
     }
+    /**
+     * Filter by price, rooms, report_type and generate report.
+     * TASK 4
+     * Test Body
+     * {
+     *       "min_price":799,
+     *       "max_price":10000,
+     *       "rooms":9
+     *        "laitude":"403.628.468"
+     *        "longitude":"-35.920.664"
+     *         "report_type":"PDF"
+     *       }
+     */
     public function createReport(Request $request)
     {
         try {
