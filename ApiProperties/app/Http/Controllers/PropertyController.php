@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\reader\CsvImport;
 use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
@@ -13,7 +14,7 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(['message' => 'Datos importados correctamente'], 200);
     }
 
     /**
@@ -21,7 +22,7 @@ class PropertyController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json(['message' => 'Datos importados correctament2e'], 200);
     }
 
     /**
@@ -29,7 +30,15 @@ class PropertyController extends Controller
      */
     public function store(StorePropertyRequest $request)
     {
-        //
+        //return response()->json(['message' => $request->pathFile], 200);
+        try {
+            $importer = new CsvImport($request->pathFile);
+            $importer->import();
+
+            return response()->json(['message' => 'Datos importados correctamente'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
