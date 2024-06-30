@@ -22,4 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers'], function () {
     Route::apiResource('properties', PropertyController::class);
     Route::get('/filter', [PropertyController::class, 'filterProperties']);
+    Route::get('/average', [PropertyController::class, 'calculateAveragePrice']);
 });

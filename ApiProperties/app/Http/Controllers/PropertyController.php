@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\reader\CsvImport;
+
+use App\reader\AveragePriceCalculator;
 use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
@@ -94,5 +96,19 @@ class PropertyController extends Controller
         $properties = $query->paginate(10);
 
         return response()->json(['properties' => $properties], 200);
+    }
+    public function calculateAveragePrice(Request $request)
+    {
+        $latitud = $request['latitud'];
+        $longitud = $request['longitud'];
+        $distanceKm = $request['distanceKm'];
+
+        $calculator = new AveragePriceCalculator($latitud, $longitud, $distanceKm);
+
+        $averagePrice = $calculator->calculateAverage();
+
+        return response()->json([
+            'average_price_per_square_meter' => $averagePrice,
+        ], 200);
     }
 }
