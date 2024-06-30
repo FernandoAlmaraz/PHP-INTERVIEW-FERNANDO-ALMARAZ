@@ -19,7 +19,8 @@ class Filter
         $minPrice = $this->request->query('min_price');
         $maxPrice = $this->request->query('max_price');
         $rooms = $this->request->query('rooms');
-
+        $latitude = $this->request->query('latitude');
+        $longitude = $this->request->query('longitude');
         $query = Property::query();
 
         if ($minPrice !== null && $maxPrice !== null) {
@@ -32,6 +33,12 @@ class Filter
 
         if ($rooms) {
             $query->where('Habitaciones', $rooms);
+        }
+        if ($latitude) {
+            $query->where('Latitud', $latitude);
+        }
+        if ($longitude) {
+            $query->where('longitude', $longitude);
         }
 
         $properties = $query->paginate(10);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\reader\CsvImport;
 use App\reader\AveragePriceCalculator;
 use App\reader\Filter;
@@ -9,6 +10,7 @@ use App\Models\Property;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
 {
@@ -78,13 +80,10 @@ class PropertyController extends Controller
     public function filterProperties(Request $request)
     {
         try {
-            // Crear instancia del filtro y aplicar
             $filter = new Filter($request);
             $filteredProperties = $filter->apply();
-            // Retornar respuesta JSON con propiedades filtradas
             return response()->json(['properties' => $filteredProperties], 200);
         } catch (\Exception $e) {
-            // Manejar cualquier error
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -101,5 +100,30 @@ class PropertyController extends Controller
         return response()->json([
             'average_price_per_square_meter' => $averagePrice,
         ], 200);
+    }
+    public function createReport(Request $request)
+    {
+        try {
+            $filter = new Filter($request);
+            $filteredProperties = $filter->apply();
+
+            if ($request->tipo_reporte === 'pdf') {
+                // Generar reporte en PDF (ejemplo con dompdf)
+                $pdf = PDF::loadView('reporte.pdf', $filteredProperties);
+                $content = $pdf->output();
+                $fileName = 'reporte_' . uniqid() . '.pdf';
+            } else {
+                $content = $filteredProperties;
+                $fileName = 'reporte_' . uniqid() . '.csv';
+            }
+            Storage::disk('public')->put('reportes/' . $fileName, $content);
+
+            return response()->json([
+                'mensaje' => 'Reporte generado correctamente',
+                'archivo' => $fileName,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
