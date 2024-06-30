@@ -28,7 +28,7 @@ class PropertyController extends Controller
      */
     public function create()
     {
-        return response()->json(['message' => 'Creando datos'], 200);
+        //
     }
 
     /**
@@ -37,12 +37,14 @@ class PropertyController extends Controller
     public function store(StorePropertyRequest $request)
     {
         try {
+            if (empty($request->pathFile) || !is_string($request->pathFile)) {
+                throw new \Exception('El archivo a importar no es válido :/');
+            }
             $importer = new CsvImport($request->pathFile);
             $importer->import();
-
             return response()->json(['message' => 'Datos importados correctamente'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Ha ocurrido un error al importar los datos. Por favor, inténtalo de nuevo más tarde.'], 500);
         }
     }
 
@@ -80,26 +82,31 @@ class PropertyController extends Controller
     public function filterProperties(Request $request)
     {
         try {
+            if (empty($request->all())) {
+                throw new \Exception('El request está vacío o incompleto.');
+            }
             $filter = new Filter($request);
             $filteredProperties = $filter->apply();
             return response()->json(['properties' => $filteredProperties], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Ha ocurrido un error al filtrar las propiedades. Por favor, inténtalo de nuevo más tarde.'], 500);
         }
     }
     public function calculateAveragePrice(Request $request)
     {
-        $latitud = $request['latitud'];
-        $longitud = $request['longitud'];
-        $distanceKm = $request['distanceKm'];
+        if (!$request->filled('latitude') || !$request->filled('longitude') || !$request->filled('distancekm')) {
+            return response()->json(['error' => 'Los parámetros latitude, longitude y distancekm son obligatorios.'], 400);
+        }
+        try {
+            $calculator = new AveragePriceCalculator($request);
+            $averagePrice = $calculator->calculateAverage();
 
-        $calculator = new AveragePriceCalculator($latitud, $longitud, $distanceKm);
-
-        $averagePrice = $calculator->calculateAverage();
-
-        return response()->json([
-            'average_price_per_square_meter' => $averagePrice,
-        ], 200);
+            return response()->json([
+                'average_price_per_square_meter' => $averagePrice,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Los parámetros no son los esperados :(.'], 400);
+        }
     }
     public function createReport(Request $request)
     {
@@ -107,7 +114,7 @@ class PropertyController extends Controller
             $filter = new Filter($request);
             $filteredProperties = $filter->apply();
 
-            if ($request->tipo_reporte === 'pdf') {
+            if ($request->report_type === 'pdf') {
                 $pdf = PDF::loadView('reporte.pdf', $filteredProperties);
                 $content = $pdf->output();
                 $fileName = 'reporte_' . uniqid() . '.pdf';

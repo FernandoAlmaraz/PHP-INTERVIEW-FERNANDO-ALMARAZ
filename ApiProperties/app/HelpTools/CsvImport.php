@@ -7,7 +7,7 @@ use Exception;
 
 class CsvImport
 {
-    protected $filePath;
+    protected $pathFile;
     protected $columnNames = [
         'Latitud', 'Longitud',
         'ID', 'Titulo', 'Anunciante', 'Descripcion',
@@ -21,9 +21,9 @@ class CsvImport
         'Plantas', 'Se admiten mascotas', 'Balcón'
     ];
 
-    public function __construct($filePath)
+    public function __construct($pathFile)
     {
-        $this->filePath = $filePath;
+        $this->pathFile = $pathFile;
     }
 
     public function import()
@@ -63,7 +63,7 @@ class CsvImport
 
     protected function openFile()
     {
-        $file = fopen($this->filePath, 'r');
+        $file = fopen($this->pathFile, 'r');
 
         if (!$file) {
             throw new Exception('No se pudo abrir el archivo.');

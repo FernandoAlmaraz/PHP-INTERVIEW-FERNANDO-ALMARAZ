@@ -3,39 +3,34 @@
 namespace App\HelpTools;
 
 use App\Models\Property;
+use Illuminate\Support\Facades\DB;
 
 class AveragePriceCalculator
 {
-    protected $latitud;
-    protected $longitud;
-    protected $distanceKm;
+    protected $request;
 
-    public function __construct($latitud, $longitud, $distanceKm)
+    public function __construct($request)
     {
-        $this->latitud = $latitud;
-        $this->longitud = $longitud;
-        $this->distanceKm = $distanceKm;
+        $this->request = $request;
     }
 
     public function calculateAverage()
     {
-        $property = Property::where('Latitud', $this->latitud)
-            ->where('Longitud', $this->longitud)
-            ->first(['Precio', 'Precio por metro', 'Metros cuadrados']);
+        $latitude = $this->formatCoordinate($this->request->latitude);
+        $longitude = $this->formatCoordinate($this->request->longitude);
+        $distanceKm = $this->request->query('distancekm');
+        $distanceMeters = $distanceKm * 1000;
 
-        if ($property) {
+        $averagePrice = Property::select(DB::raw('AVG(Precio) as averagePrice'))
+            ->whereRaw("ST_Distance_Sphere(ST_GeomFromText('POINT($longitude $latitude)'), ST_GeomFromText('POINT($longitude $latitude)')) <= ?", [$distanceMeters])
+            ->value('averagePrice');
 
-            $price = $property->Precio;
-            $pricePerMeter = $property->{'Precio por metro'};
-            $squareMeter = $property->{'Metros cuadrados'};
-
-            $kilometersSquare = $squareMeter / 1000000;
-
-            $average = ($price + $pricePerMeter + $kilometersSquare) / 3;
-
-            return $average;
-        } else {
-            return null;
-        }
+        return $averagePrice;
+    }
+    private function formatCoordinate($coordinate)
+    {
+        $coordinate = str_replace('.', '', $coordinate);
+        $coordinate = substr_replace($coordinate, '.', -6, 0);
+        return $coordinate;
     }
 }

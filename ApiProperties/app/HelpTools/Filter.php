@@ -16,8 +16,8 @@ class Filter
 
     public function apply()
     {
-        $minPrice = $this->request->query('min_price');
-        $maxPrice = $this->request->query('max_price');
+        $minPrice = $this->request->query('minPrice');
+        $maxPrice = $this->request->query('maxPrice');
         $rooms = $this->request->query('rooms');
 
         $query = Property::query();
