@@ -5,7 +5,7 @@ namespace App\HelpTools;
 use App\Models\Property;
 use Illuminate\Http\Request;
 
-class Filter
+class FilterByCoor
 {
     protected $request;
 
