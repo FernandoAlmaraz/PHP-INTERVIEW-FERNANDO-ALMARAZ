@@ -30,17 +30,14 @@ class CsvImport
     {
         $file = $this->openFile();
 
-        // Leer la primera línea como encabezados
         $headers = fgetcsv($file, 0, ';');
 
         $insertedCount = 0;
         $updatedCount = 0;
 
         while (($row = fgetcsv($file, 0, ';')) !== false) {
-            // Construir un array asociativo para cada fila
             $rowData = $this->buildRowData($headers, $row);
 
-            // Insertar o actualizar en la base de datos
             try {
                 $result = $this->insertOrUpdateProperty($rowData);
                 if ($result === 'inserted') {
@@ -49,9 +46,8 @@ class CsvImport
                     $updatedCount++;
                 }
             } catch (Exception $e) {
-                // Loggear el error o manejar según sea necesario
                 echo "Error al insertar o actualizar: " . $e->getMessage() . "\n";
-                continue; // Continuar con la siguiente fila en caso de error
+                continue;
             }
         }
 
@@ -83,7 +79,6 @@ class CsvImport
         foreach ($this->columnNames as $index => $columnName) {
             $value = isset($row[$index]) ? $row[$index] : null;
 
-            // Validar y convertir tipos de datos específicos
             switch ($columnName) {
                 case 'Planta':
                 case 'Habitaciones':
@@ -128,22 +123,20 @@ class CsvImport
                 case 'Apto para personas con movilidad reducida':
                 case 'Se admiten mascotas':
                 case 'Balcón':
-                    // Convertir a booleano si es una cadena representando 'true' o 'false'
+
                     $lowercaseValue = strtolower($value);
                     if ($lowercaseValue === 'true' || $lowercaseValue === 'false') {
                         $value = ($lowercaseValue === 'true');
                     } else {
-                        $value = null; // Puedes manejar aquí casos de valores no válidos
+                        $value = null;
                     }
                     break;
                 default:
-                    // Para otras columnas, conservar el valor tal cual
                     break;
             }
 
-            // Manejo de valores vacíos para permitir nulos si es necesario
             if ($value === '') {
-                $value = null; // O ajusta según lo que permita tu base de datos
+                $value = null;
             }
 
             $rowData[$columnName] = $value;
@@ -157,34 +150,21 @@ class CsvImport
 
     protected function isDate($string)
     {
-        // Función auxiliar para verificar si una cadena es una fecha válida en formato 'dd/mm/yyyy'
         $date = date_create_from_format('d/m/Y', $string);
         return $date && $date->format('d/m/Y') === $string;
     }
 
-
-
-
     protected function insertOrUpdateProperty($data)
     {
-        // Verificar si $data está vacío o no tiene la clave 'ID'
+
         if (empty($data) || !isset($data['ID'])) {
             throw new Exception('Los datos no son válidos para la inserción.');
         }
 
-        // Ejemplo de inserción masiva utilizando el modelo Property
-        Property::updateOrCreate(
-            ['ID' => $data['ID']], // Buscar por la columna ID
-            $data // Datos a insertar o actualizar
-        );
-    }
 
-    protected function displayRowData($rowData)
-    {
-        echo "Datos de la fila:\n";
-        foreach ($rowData as $columnName => $value) {
-            echo "$columnName: $value\n";
-        }
-        echo "\n";
+        Property::updateOrCreate(
+            ['ID' => $data['ID']],
+            $data
+        );
     }
 }
